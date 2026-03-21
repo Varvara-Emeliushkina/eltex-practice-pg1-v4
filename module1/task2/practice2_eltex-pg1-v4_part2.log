@@ -1,0 +1,224 @@
+
+
+                       МОДУЛЬ 1 ПРАКТИКА 2 РАЗДЕЛ 2
+_________________________________________________________________________________________
+1: Найдите все записи из лога загрузки, доступного через команду journalctl
+   с опцией -b в первые 20 секунд с момента загрузки, начало загрузки
+   определить автоматически.
+  
+  Когда система загрузилась (в сек):
+  BOOT_TIME=$(date -d "$(uptime -s)" +%s)
+  echo $BOOT_TIME
+  1773304032
+
+  uptime -s
+  2026-03-12 08:27:12
+  date -d "@$BOOT_TIME"
+  Thu Mar 12 08:27:12 AM UTC 2026
+
+  journalctl -b --since="@$BOOT_TIME" --until="@$((BOOT_TIME + 20))"
+  -- No entries --
+  Значит в первые 20 сек жизни системы лог еще ене пишется, посмотрим, может позже..
+  Сначала грузится ядро, потом initramfs, потом systemd, и только потом journald
+
+  journalctl -b --since="@$BOOT_TIME" --until="@$((BOOT_TIME + 21))"
+  -- No entries --
+
+  journalctl -b --since="@$BOOT_TIME" --until="@$((BOOT_TIME + 22))"
+  Mar 12 08:27:33 localhost kernel: Linux version 6.8.0-55-generic (buildd@lcy02-amd64-095) (x>
+  Mar 12 08:27:33 localhost kernel: Command line: BOOT_IMAGE=/vmlinuz-6.8.0-55-generic root=/d>
+  Mar 12 08:27:33 localhost kernel: KERNEL supported cpus:
+  Mar 12 08:27:33 localhost kernel:   Intel GenuineIntel
+  Mar 12 08:27:33 localhost kernel:   AMD AuthenticAMD
+  Mar 12 08:27:33 localhost kernel:   Hygon HygonGenuine
+  Mar 12 08:27:33 localhost kernel:   Centaur CentaurHauls
+  Mar 12 08:27:33 localhost kernel:   zhaoxin   Shanghai
+  Mar 12 08:27:33 localhost kernel: BIOS-provided physical RAM map:
+			...
+  Начинает писать с 22-ой секунды.
+_________________________________________________________________________________________
+2: Используя awk найдите все источники и их сообщения в файле auth.log (найдите его find),
+   в названии источника удалите информацию об идентификаторе процесса при помощи sed,
+   полученный результат отсортируйте по названию источника
+
+  find /var/log -name "auth.log" 2>/dev/null
+  /var/log/auth.log
+  
+  awk '{for(i=1;i<=NF;i++)
+  {if($i~ /^[a-zA-Z0-9_-]+\[[0-9]+\]:$/)
+  {src=substr($i,1,index($i,"[")-1); msg=substr($0,index($0,$i)+length($i)); print src, msg}
+  }}' /var/log/auth.log | sed 's/\[[0-9]*\]//g' | sort
+
+  chage  changed password expiry for user1
+  chage  changed password expiry for user2
+  chage  changed password expiry for user3
+  chfn  changed user 'user2' information
+  chfn  changed user 'user2' information
+  chfn  changed user 'user3' information
+  chfn  changed user 'user3' information
+  CRON  pam_unix(cron:session): session closed for user root
+  CRON  pam_unix(cron:session): session closed for user root
+  CRON  pam_unix(cron:session): session closed for user root
+  CRON  pam_unix(cron:session): session closed for user root
+		...
+  i<=NF пока i меньше или равно количеству полей (Number of Fields)
+  проверяем, похоже ли поле на "имя[PID]:"
+  src=substr($i,1,index($i,"[")-1) выделяем имя источника без PID
+  msg=substr($0,index($0,$i)+length($i)) выделяем сообщение после источника
+  sed(stream editor, для замены текста - заменяем инфу на пустоту ака удаляем)
+  и сортируем по алфавиту
+_________________________________________________________________________________________
+3: Для результата из предыдущего пункта найдите количество повторений для каждого источника
+   и выведите их в виде списка «число_повторений источник», результат отсортируйте по
+   убыванию количества повторений
+  
+  команда та же что и в 2, + uniq -c | sort -rn
+  uniq -c (работает только на сортированном входе) -с (count)
+  sort -rn (reverse numeric - обратный порядок, как числа)
+
+  awk '{for(i=1;i<=NF;i++)
+  {if($i~ /^[a-zA-Z0-9_-]+\[[0-9]+\]:$/)
+  {src=substr($i,1,index($i,"[")-1); msg=substr($0,index($0,$i)+length($i)); print src, msg}
+  }}' /var/log/auth.log | sed 's/\[[0-9]*\]//g' | sort | uniq -c | sort -rn
+
+     1800 CRON
+     66 sshd
+     57 su
+     28 systemd-logind
+     18 groupadd
+     16 userdel
+     14 usermod
+     10 useradd
+      7 passwd
+      4 gpasswd
+      4 chfn
+      3 groupdel
+      3 chage
+_________________________________________________________________________________________
+4: В файле /etc/passwd найдите всех пользователей в системе, у которых установлен shell
+   /usr/sbin/nologin и выведите их в виде списка: «UID, username, список его групп»,
+   отсортированный в обратном порядке по UID, cписок групп используйте из файла /etc/group
+
+  awk -F: '$7 ~ /nologin$/ {print $1":"$3}' /etc/passwd | while IFS=: read user uid; do
+  > groups=$(grep -E ":.*$user" /etc/group | cut -d: -f1 | tr '\n' ',' | sed 's/,$//')
+  > echo "$uid, $user, [$groups]"
+  > done | sort -rn
+  
+  65534, nobody, []
+  1003, user3, [users,developers]
+  998, systemd-network, []
+  997, systemd-timesync, []
+  992, systemd-resolve, []
+  991, polkitd, []
+  989, fwupd-refresh, []
+  109, sshd, []
+  108, usbmux, []
+  107, landscape, []
+  105, tcpdump, []
+  104, uuidd, []
+  103, syslog, [adm]
+  101, messagebus, []
+  42, _apt, []
+  39, irc, []
+  38, list, []
+  34, backup, []
+  33, www-data, []
+  13, proxy, []
+  10, uucp, []
+  9, news, []
+  8, mail, []
+  7, lp, []
+  6, man, []
+  5, games, []
+  3, sys, [adm]
+  2, bin, []
+  1, daemon, []
+
+  -F (field separator - :)
+  $7 седьмое поле это shell
+  выводим первое и третье поле username uid разделенные :
+  в цикле для каждой строки раскладываем на user и uid (IFS - Internal Field Separator)
+  в group ищем группы содержащие пользователя форматируем и записываем в groups
+  выводим отформатированную строку и сортируем по uid
+_________________________________________________________________________________________
+5: Найдите в результате вывода dmesg все строки, содержащие слово 'kernel‘
+
+  dmesg | grep -i kernel
+  
+  [    0.000000] KERNEL supported cpus:
+  [    0.143691] Booting paravirtualized kernel on KVM
+  [    0.153700] Kernel command line: BOOT_IMAGE=/vmlinuz-6.8.0-55-generic root=/dev/mapper/ubuntu--vg-ubuntu--lv ro
+  [    0.153822] Unknown kernel command line parameters "BOOT_IMAGE=/vmlinuz-6.8.0-55-generic", will be passed to user space.
+  [    0.381657] Memory: 3933488K/4193760K available (22528K kernel code, 4443K rwdata, 14344K rodata, 4988K init, 4716K bss, 260012K reserved, 0K cma-reserved)
+  [    0.573946] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+  [    0.573998] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+  [    0.574046] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+  [    1.174026] Loaded X.509 cert 'Build time autogenerated kernel key: e0bedf6fa049a1e09bd65ebab3904f14cdd5bc68'
+  [    1.190790] Loaded X.509 cert 'Canonical Ltd. Kernel Module Signing: 88f752e560a1e0737e31163a466ad7b70a850c19'
+  [    1.342776] Loaded X.509 cert 'Build time autogenerated kernel key: e0bedf6fa049a1e09bd65ebab3904f14cdd5bc68'
+  [    1.391073] Freeing unused kernel image (initmem) memory: 4988K
+  [    1.392705] Write protecting the kernel read-only data: 38912k
+  [    1.394692] Freeing unused kernel image (rodata/data gap) memory: 2040K
+  [   20.018351] systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+  [   20.158660] systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+  [   20.187745] systemd[1]: Mounting sys-kernel-tracing.mount - Kernel Trace File System...
+  [   20.344613] systemd[1]: Starting modprobe@configfs.service - Load Kernel Module configfs...
+  [   20.372340] systemd[1]: Starting modprobe@dm_mod.service - Load Kernel Module dm_mod...
+  [   20.405364] systemd[1]: Starting modprobe@drm.service - Load Kernel Module drm...
+  [   20.440670] systemd[1]: Starting modprobe@efi_pstore.service - Load Kernel Module efi_pstore...
+  [   20.474713] systemd[1]: Starting modprobe@fuse.service - Load Kernel Module fuse...
+  [   20.493369] systemd[1]: Starting modprobe@loop.service - Load Kernel Module loop...
+  [   20.828429] systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
+  [   20.887473] systemd[1]: Starting systemd-remount-fs.service - Remount Root and Kernel File Systems...
+   
+_________________________________________________________________________________________
+6: Подсчитайте количество строк в файле /var/log/kern.log
+
+  cat /var/log/kern.log | wc -l
+  104
+_________________________________________________________________________________________
+7: Отформатируйте вывод записей в /var/log/apt/history.log в следующем порядке, построчно:
+   Commandline: … ; Start-Date: … ; End-Date: …
+
+  Как было:
+  cat /var/log/apt/history.log | tail -10
+  
+  Start-Date: 2026-03-19  18:09:47
+  Commandline: apt install -y bzip2
+  Install: bzip2:amd64 (1.0.8-5.1build0.1)
+  End-Date: 2026-03-19  18:09:51
+
+  Start-Date: 2026-03-19  18:10:51
+  Commandline: apt install p7zip-full
+  Install: p7zip-full:amd64 (16.02+transitional.1), 7zip:amd64 (23.01+dfsg-11, automatic)
+  End-Date: 2026-03-19  18:10:58
+
+  awk '
+  /Start-Date:/ {start=$0}
+  /End-Date:/ {end=$0}
+  /Commandline:/ {
+      cmd=substr($0, index($0,":")+2)
+      gsub(/^[ \t]+|[ \t]+$/, "", cmd)
+      printf "Commandline: %s ; Start-Date: %s ; End-Date: %s\n",
+             cmd,
+             substr(start, index(start,":")+2),
+             substr(end, index(end,":")+2)
+  }' /var/log/apt/history.log
+
+  Видим Start-Date записываем в start, видим End-Date - в end,Commandline форматируем.
+  
+  Commandline: apt-get install --reinstall apt ; Start-Date: 2025-02-16  20:51:22 ; End-Date:
+  Commandline: apt-get install --reinstall base-files ; Start-Date: 2025-02-16  20:51:26 ; End-Date: 2025-02-16  20:51:24
+  Commandline: apt-get install --reinstall base-passwd ; Start-Date: 2025-02-16  20:51:31 ; End-Date: 2025-02-16  20:51:28
+  Commandline: apt-get install --reinstall bash ; Start-Date: 2025-02-16  20:51:35 ; End-Date: 2025-02-16  20:51:32
+  Commandline: apt-get install --reinstall bsdutils ; Start-Date: 2025-02-16  20:51:39 ; End-Date: 2025-02-16  20:51:37
+		... 
+____________________________________________________________________________________
+
+                КОНЕЦ           МОДУЛЬ 1 ПРАКТИКА 2 РАЗДЕЛ 2
+
+
+
+
+
+

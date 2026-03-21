@@ -1,0 +1,87 @@
+
+
+                       МОДУЛЬ 1 ПРАКТИКА 2 РАЗДЕЛ 3
+_________________________________________________________________________________________
+1: Зарегистрируйтесь на сайте github.com, если еще не сделали этого ранее
+  
+  Varvara-Emeliushkina
+_________________________________________________________________________________________
+2: Установите параметры git в соответствии с вашими учетными данными
+
+  git config --global user.name "Varvara-Emeliushkina"
+  git config --global user.email "varvaraemeliushkina@gmail.com"
+  git config --global init.defaultBranch main
+_________________________________________________________________________________________
+3: Установите непосредственно программу git и набор утилит для управления github из
+   командной строки gh
+
+   apt update
+   apt install git gh
+_________________________________________________________________________________________
+4: Создайте ключ ssh.
+
+  ssh-keygen -t ed25519 -f ~/.ssh/Varvara-Emeliushkina
+_________________________________________________________________________________________
+5: Подключите этот комьютер к github:
+   gh auth login
+   ? What account do you want to log into? GitHub.com
+   ? What is your preferred protocol for Git operations on this host? SSH
+   ? Upload your SSH public key to your GitHub account? /root/.ssh/название_ключа.pub
+   ? Title for your SSH key: eltex-practice2-pgX-vY
+   ? How would you like to authenticate GitHub CLI? Login with a web browser
+_________________________________________________________________________________________
+6: Укажите автоматическую авторизацию только для сайта github.com
+  
+  gh auth setup-git --hostname github.com
+_________________________________________________________________________________________
+7: Убедиться, что все в порядке можно командой: gh auth status
+
+  github.com
+  ✓ Logged in to github.com account Varvara-Emeliushkina (/root/.config/gh/hosts.yml)
+  - Active account: true
+  - Git operations protocol: ssh
+  - Token: gho_************************************
+  - Token scopes: 'admin:public_key', 'gist', 'read:org', 'repo
+_________________________________________________________________________________________
+8: Создайте репозиторий на сервере github:
+   
+  gh repo create --public eltex-practice-pg1-v4
+_________________________________________________________________________________________
+9: Пора наполнить его:
+
+  mkdir ~/eltex-practice-pg1-v4 && cd ~/eltex-practice-pg1-v4
+  echo "Отчеты по практике eltex-practice-pg1-v4" >> README.md
+  git init
+  git add README.md
+  git commit -m "first commit"
+  git branch -M main
+  git remote add origin https://github.com/Varvara-Emeliushkina/eltex-practice-pg1-v4.git
+  git status
+  git push -u origin main
+  mkdir -p module1/task1
+  mkdir module1/task2
+  mkdir module1/task3
+  (скопируйте с сервера для 1 практики отчеты в каталоги task* используя команду scp)
+  git add .
+  git status
+  git commit (введите комментарий)
+  git push
+_________________________________________________________________________________________
+10: Клонируйте ваш репозиторий:
+
+  mkdir ~/eltex-practice-pg1-v4_clone && cd ~/eltex-practice-pg1-v4_clone
+  git clone https://github.com/Varvara-Emeliushkina/eltex-practice-pg1-v4.git . (nb! точка)
+_________________________________________________________________________________________
+11: Внесите изменение в основном каталоге, не забыв про git add/commit/push, выполните в
+    каталоге с клоном:
+
+  git fetch
+  git log origin/main
+  git diff main origin/main
+  git merge (для автоматического слияния используйте git pull вместо fetch+merge)
+_________________________________________________________________________________________
+12: Повторите п.9 начиная с создания каталогов для отчета по второй практике
+_________________________________________________________________________________________
+
+                КОНЕЦ   МОДУЛЬ 1 ПРАКТИКА 2 РАЗДЕЛ 3
+

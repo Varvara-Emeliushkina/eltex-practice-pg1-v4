@@ -1,0 +1,216 @@
+
+
+                       МОДУЛЬ 1 ПРАКТИКА 1 РАЗДЕЛ 3
+_________________________________________________________________________________________
+1: Перейдите в домашний каталог, создайте файл $USER_part3.log. Используемые в разделе 3
+   команды дописывайте в файл командой echo, не забудьте про экранирование.
+ 
+  cd ~
+  touch eltex-pg1-v4_part3.log
+_________________________________________________________________________________________
+2: Создайте иерархию вложенных каталогов D1/D2/D3.
+
+  mkdir -p D1/D2/D3
+
+  Результат:
+  total 12
+  drwxr-xr-x 3 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:36 .
+  drwxr-xr-x 3 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:36 ..
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:36 D3
+_________________________________________________________________________________________
+3: В каталоге D2 создайте обычный пустой файл file.txt.
+
+  touch D1/D2/file.txt
+
+  Результат:
+  total 12
+  drwxr-xr-x 3 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:39 .
+  drwxr-xr-x 3 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:36 ..
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:36 D3
+  -rw-r--r-- 1 eltex-pg1-v4 eltex-pg1-v4    0 Mar 17 13:39 file.txt
+_________________________________________________________________________________________
+4: Добавьте произвольный текст в файл file.txt.
+
+  echo "Это какой-то произвольный текст" > D1/D2/file.txt
+
+  Содержимое файла:
+  Это какой-то произвольный текст!
+_________________________________________________________________________________________
+5: В каталоге D3 создайте символическую и жесткие ссылки на file.txt.
+
+  cd D1/D2/D3
+  ln ../file.txt hard_link_file.txt
+  ln -s ../file.txt soft_link_file.txt
+  cd ~
+_________________________________________________________________________________________
+6: Докажите, что ссылки созданы успешно.
+
+  Содержимое каталога D3:
+  total 12
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:47 .
+  drwxr-xr-x 3 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:39 ..
+  -rw-r--r-- 2 eltex-pg1-v4 eltex-pg1-v4   60 Mar 17 13:42 hard_link_file.txt
+  lrwxrwxrwx 1 eltex-pg1-v4 eltex-pg1-v4   11 Mar 17 13:47 soft_link_file.txt -> ../file.txt
+
+  Информация о файлах (inode):
+  393408 D1/D2/D3/hard_link_file.txt
+  393409 D1/D2/D3/soft_link_file.txt
+  393408 D1/D2/file.txt
+
+  Проверка содержимого через ссылки:
+  Через жесткую ссылку:
+  Это какой-то произвольный текст!
+  Через символическую ссылку:
+  Это какой-то произвольный текст!
+
+  Вывод: обе ссылки работают.
+_________________________________________________________________________________________
+7: Переместите файл file.txt в каталог D1.
+
+  mv D1/D2/file.txt D1/
+
+  Результат перемещения:
+  Содержимое каталога D1:
+  total 16
+  drwxr-xr-x  3 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:59 .
+  drwxr-xr-x 18 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:36 ..
+  drwxr-xr-x  3 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:59 D2
+  -rw-r--r--  2 eltex-pg1-v4 eltex-pg1-v4   60 Mar 17 13:42 file.txt
+
+  Содержимое каталога D2:
+  total 12
+  drwxr-xr-x 3 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:59 .
+  drwxr-xr-x 3 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:59 ..
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:47 D3
+_________________________________________________________________________________________
+8: Проверьте работу ранее созданных ссылок на файл file.txt. Какая ссылка оказалась рабочей и
+   почему?
+
+  Проверка жесткой ссылкки:
+  Жесткая ссылка существует
+  Содержимое через жесткую ссылку:
+  Это какой-то произвольный текст!
+
+  Провека симовлической ссылки:
+  Символичсекая ссылка не работает (битая)
+  lrwxrwxrwx 1 eltex-pg1-v4 eltex-pg1-v4 11 Mar 17 13:47 D1/D2/D3/soft_link_file.txt -> ../file.txt
+
+  Объяснение:
+  Жеская ссылка работает, потому что указывает на тот же inode (физические данные),
+  inode остается тем же жаэе после перемещения файла.
+  Файл существует, пока сущестует хотя бы одна жеская ссылка на него.
+
+  Символическая ссылка сломалась, так как хранит путь(../file.txt) к файлу который изменился.
+_________________________________________________________________________________________
+9: Удалите каталог D2 со всем содержимым.
+
+  -rf D1/D2
+
+  Результат удаления:
+  Содержимое D1 после удаления:
+  total 12
+  drwxr-xr-x  2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 14:15 .
+  drwxr-xr-x 18 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 17 13:36 ..
+  -rw-r--r--  1 eltex-pg1-v4 eltex-pg1-v4   60 Mar 17 13:42 file.txt
+
+  Жесткая ссылка в удаленном каталоге D2/D3 тоже удалена, но файл продолжает существовать.
+_________________________________________________________________________________________
+10: Найдите все файлы в системе размером больше 20МБ. Убедитесь в том (du), что найденные
+    файлы имеют нужный размер. Запишите в файл $USER_part3_gt50M.log список найденных
+    файлов.
+
+  find / -type f -size +20M 2>/dev/null
+
+  Результат:
+  /usr/bin/x86_64-linux-gnu-lto-dump-12
+  /usr/lib/gcc/x86_64-linux-gnu/12/lto1
+  /usr/lib/gcc/x86_64-linux-gnu/12/cc1
+  /usr/lib/x86_64-linux-gnu/libicudata.so.72.1
+  /proc/kcore
+  /home/eltex-pg1-v3/practice2_eltex-pg1-v3_part1.log
+  /home/eltex-pg2-v10/eltex-pg2-v10_part.log
+  /boot/initrd.img-6.1.0-43-amd64
+  /boot/initrd.img-6.1.0-40-amd64
+  /var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@4f44ef78d53d4cd0a5555898b8d0015b-0000000000021f7c-00064c3f482d4944.journal
+  /var/cache/apt/srcpkgcache.bin
+  /var/cache/apt/pkgcache.bin
+  /var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_binary-amd64_Packages
+  /var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_source_Sources
+  /var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_i18n_Translation-en
+
+  Проверка размеров найденных файлов:
+  31M	/usr/bin/x86_64-linux-gnu-lto-dump-12
+  31M	/usr/lib/gcc/x86_64-linux-gnu/12/lto1
+  32M	/usr/lib/gcc/x86_64-linux-gnu/12/cc1
+  30M	/usr/lib/x86_64-linux-gnu/libicudata.so.72.1
+  0	/proc/kcore
+  180M	/home/eltex-pg1-v3/practice2_eltex-pg1-v3_part1.log
+  205M	/home/eltex-pg2-v10/eltex-pg2-v10_part.log
+  33M	/boot/initrd.img-6.1.0-43-amd64
+  33M	/boot/initrd.img-6.1.0-40-amd64
+  43M	/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@4f44ef78d53d4cd0a5555898b8d0015b-0000000000021f7c-00064c3f482d4944.journal
+  39M	/var/cache/apt/srcpkgcache.bin
+  39M	/var/cache/apt/pkgcache.bin
+  48M	/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_binary-amd64_Packages
+  49M	/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_source_Sources
+  32M	/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_i18n_Translation-en
+_________________________________________________________________________________________
+11: В домашнем каталоге и его подкаталогах найдите обычные файлы, которые
+    были изменены в течение последних 24х часов.
+
+  find ~ -type f -mtime -1 2>/dev/null
+
+  Результат:
+  /home/eltex-pg1-v4/.viminfo
+  /home/eltex-pg1-v4/eltex-pg1-v4_part2.log
+  /home/eltex-pg1-v4/.lesshst
+  /home/eltex-pg1-v4/.log
+  /home/eltex-pg1-v4/.local/share/nano/search_history
+  /home/eltex-pg1-v4/D1/file.txt
+  /home/eltex-pg1-v4/.bash_history
+  /home/eltex-pg1-v4/eltex-pg1-v4_part3.log
+  /home/eltex-pg1-v4/eltex-pg1-v4_part3_gt50M.log
+_________________________________________________________________________________________
+12: В каком каталоге находится команда find?
+
+  Расположение команды find:
+  which find
+
+  Результат:
+  /usr/bin/find
+
+  Все пути, где может находиться find:
+  whereis find
+
+  Результат:
+  find: /usr/bin/find /usr/share/man/man1/find.1.gz /usr/share/info/find.info-1.gz /usr/share/info/find.info-2.gz /usr/share/info/find.info.gz
+_________________________________________________________________________________________
+13: Определите характер содержимого файла find командой file.
+
+  file /usr/bin/find
+
+  Результат:
+  /usr/bin/find: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=5545a6c7162d325fbe5ffabcbfe4e5521b66ce70, for GNU/Linux 3.2.0, stripped
+_________________________________________________________________________________________
+14: Установите, к какому типу относятся файлы /boot/initrd.img*.
+
+  file /boot/initrd.img*
+
+  Результат:
+  /boot/initrd.img-6.1.0-40-amd64: ASCII cpio archive (SVR4 with no CRC)
+  /boot/initrd.img-6.1.0-43-amd64: ASCII cpio archive (SVR4 with no CRC)
+
+  Вывод: файлы initrd.img - это образы начальной RAM-диска(initial ramdisk), которые
+  используются ядром при загрузке системы.
+  Два файла - образ старой версии ядра (6.1.0-40) и новой версии (6.1.0-43)
+____________________________________________________________________________________
+
+                КОНЕЦ           МОДУЛЬ 1 ПРАКТИКА 1 РАЗДЕЛ 3
+
+
+
+
+
+
+
+

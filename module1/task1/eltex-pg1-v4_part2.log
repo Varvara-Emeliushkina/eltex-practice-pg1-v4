@@ -1,0 +1,320 @@
+Script started on 2026-03-16 19:27:54+07:00
+
+
+                       МОДУЛЬ 1 ПРАКТИКА 1 РАЗДЕЛ 2
+_________________________________________________________________________________________
+1: Запустите новую сессию с именем "`whoami`_part2". Все команды
+   сохраняйте в файле $USER_part.log, проследите за тем, чтобы он не
+   содержал esc-последовательности форматирования и расцветки.
+
+  script -q eltex-pg1-v4_part.log
+_________________________________________________________________________________________
+2: С помощью механизма дополнения имен команд выведите все команды,
+   которые начинаются на «ls».
+
+  eltex-pg1-v4@eltex-2026-spring:~$ compgen -c | grep '^ls' | sort
+
+  Результат:
+  ls004l
+  ls
+  ls
+  lsattr
+  lsattr
+  lsblk
+  lsblk
+  lsb_release
+  lsb_release
+  lscpu
+  lscpu
+  lsfd
+  lsfd
+  lsinitramfs
+  lsinitramfs
+  lsipc
+  lsipc
+  lsirq
+  lsirq
+  lslocks
+  lslocks
+  lslogins
+  lslogins
+  lsmem
+  lsmem
+  lsmod
+  lsmod
+  lsns
+  lsns
+  lsof
+  lsof
+  lspci
+  lspci
+  lsusb
+  lsusb
+_________________________________________________________________________________________
+3: С помощью механизма дополнения имен переменных выведите все
+   переменные, которые начинаются с «HIST».
+
+  eltex-pg1-v4@eltex-2026-spring:~$ compgen -v | grep '^HIST' | sort
+
+  Результат:
+  HISTCMD
+  HISTCONTROL
+  HISTFILE
+  HISTFILESIZE
+  HISTSIZE
+_________________________________________________________________________________________
+4: Узнайте, сколько команд может храниться в файле истории.
+
+  eltex-pg1-v4@eltex-2026-spring:~$ echo $HISTFILESIZE
+
+  Результат:
+  2000
+_________________________________________________________________________________________
+5: Выведите имена файлов и каталогов из домашнего каталога, которые
+   начинаются с «.».
+
+  eltex-pg1-v4@eltex-2026-spring:~$ ls -ld ~/.*
+
+  Результат:
+  -rw------- 1 eltex-pg1-v4 eltex-pg1-v4	2953 Mar 16 19:16 /home/eltex-pg1-v4/.bash_history
+  -rw-r--r-- 1 eltex-pg1-v4 eltex-pg1-v4	 220 Mar 30  2024 /home/eltex-pg1-v4/.bash_logout
+  -rw-r--r-- 1 eltex-pg1-v4 eltex-pg1-v4	3526 Mar 30  2024 /home/eltex-pg1-v4/.bashrc
+  drwx------ 3 eltex-pg1-v4 eltex-pg1-v4	4096 Mar  5 18:31 /home/eltex-pg1-v4/.config
+  -rw------- 1 eltex-pg1-v4 eltex-pg1-v4	  20 Mar  5 17:34 /home/eltex-pg1-v4/.lesshst
+  -rw-r--r-- 1 eltex-pg1-v4 eltex-pg1-v4 21405 Mar 16 19:12 /home/eltex-pg1-v4/.log
+  -rw-r--r-- 1 eltex-pg1-v4 eltex-pg1-v4	 807 Mar 30  2024 /home/eltex-pg1-v4/.profile
+  drwx------ 2 eltex-pg1-v4 eltex-pg1-v4	4096 Mar 12 19:21 /home/eltex-pg1-v4/.ssh
+  -rw------- 1 eltex-pg1-v4 eltex-pg1-v4	 946 Mar 12 20:40 /home/eltex-pg1-v4/.viminfo
+
+  Или можно так:
+  eltex-pg1-v4@eltex-2026-spring:~$ find ~ -maxdepth 1 -name ".*"-printf "%f\n"| sort
+
+  Результат:
+  .bash_history
+  .bash_logout
+  .bashrc
+  .config
+  .lesshst
+  .log
+  .profile
+  .ssh
+  .viminfo
+_________________________________________________________________________________________
+6: Настройте вывод даты выполнения команд, хранящихся в истории.
+
+  export HISTTIMEFORMAT="%F %T "
+  210  2026-03-16 19:51:05 history | tail -5
+_________________________________________________________________________________________
+7-9: Настройте автоматическое сохранение набираемых команд в файле истории:
+     • введите любую команду, например, команду date;
+     • проверьте, есть ли эта команда в кэше и файле истории команд;
+     • определить переменную PROMPT_COMMAND так, чтобы кэш истории сохранялся в файле истории;
+     • ввести любую команду и проверить, появилась ли эта команда в кэше и файле истории.
+
+  В кэше есть, в файле нет:
+    212  2026-03-16 19:54:04 date
+    213  2026-03-16 19:54:21 history | tail -5
+
+  eltex-pg1-v4@eltex-2026-spring:~$ export PROMPT_COMMAND="history -a"
+  eltex-pg1-v4@eltex-2026-spring:~$ whoami
+
+  Проверяем после установки PROMPT_COMMAND:
+  eltex-pg1-v4@eltex-2026-spring:~$ tail -5 "~/.bash_historyhistory -a"
+  tail4-5 ~/.bash_history
+  export PROMPT_COMMAND="history -a"
+  whoami
+
+  eltex-pg1-v4@eltex-2026-spring:~$ history | tail -5
+    214  2026-03-16 19:55:09 tail -5 ~/.bash_history
+    215  2026-03-16 19:56:19 export PROMPT_COMMAND="history -a"
+    216  2026-03-16 19:56:45 whoami
+    217  2026-03-16 19:56:50 tail -5 ~/.bash_history
+    218  2026-03-16 19:57:13 history | tail -5
+_________________________________________________________________________________________
+10-12: Создайте переменную DATE, в которую запишите текущую дату. Проверьте
+       содержимое переменной. Создайте переменную TIME, в которую запишите текущее время.
+       Проверьте содержимое переменной. Создайте переменную DATE_TIME в которую поместите
+       значения из переменных DATE и TIME, разделенных пробелом. Проверьте содержимое
+       переменной. 
+
+  eltex-pg1-v4@eltex-2026-spring:~$ DATE=$(date)+%Y-%m-%d)
+  eltex-pg1-v4@eltex-2026-spring:~$ echo $DATE
+  2026-03-16
+
+  eltex-pg1-v4@eltex-2026-spring:~$ TIME=$(date)+%H:%M:%S)
+  eltex-pg1-v4@eltex-2026-spring:~$ echo $TIME
+  20:01:27
+
+  eltex-pg1-v4@eltex-2026-spring:~$ DATE_TIME="$DATE"$TIME"
+  eltex-pg1-v4@eltex-2026-spring:~$ echo $DATE_TIME
+  2026-03-16 20:01:27
+_________________________________________________________________________________________
+13: Выведите имена файлов, содержащие хотя бы одну цифру, из каталогов /bin и /sbin.
+
+  eltex-pg1-v4@eltex-2026-spring:~$ ls /bin /sbin 2>/dev/null | grep '[0-9]' | sort | uniq
+
+  Результат:
+addr2line
+b2sum
+base32
+base64
+bunzip2
+bzip2
+bzip2recover
+c89
+c89-gcc
+c99
+c99-gcc
+cpan5.36-x86_64-linux-gnu
+cpp-12
+diff3
+dumpe2fs
+e2freefrag
+e2fsck
+e2image
+e2label
+e2mmpstatus
+e2scrub
+e2scrub_all
+e2undo
+e4crypt
+e4defrag
+enc2xs
+fsck.ext2
+fsck.ext3
+fsck.ext4
+gcc-12
+gcc-ar-12
+gcc-nm-12
+gcc-ranlib-12
+gcov-12
+gcov-dump-12
+gcov-tool-12
+grub-menulst2cfg
+grub-mkpasswd-pbkdf2
+grub-syslinux2cfg
+h2ph
+h2xs
+i386
+killall5
+linux32
+linux64
+lto-dump-12
+md5sum
+md5sum.textutils
+mke2fs
+mkfs.ext2
+mkfs.ext3
+mkfs.ext4
+pdb3
+pdb3.11
+perl5.36.0
+perl5.36-x86_64-linux-gnu
+ping4
+ping6
+pl2pm
+pod2html
+pod2man
+pod2text
+pod2usage
+py3clean
+py3compile
+py3versions
+pydoc3
+pydoc3.11
+pygettext3
+pygettext3.11
+python3
+python3.11
+resize2fs
+sha1sum
+sha224sum
+sha256sum
+sha384sum
+sha512sum
+ssh-argv0
+systemd-id128
+traceroute6
+traceroute6.db
+tune2fs
+update-grub2
+x86_64
+x86_64-linux-gnu-addr2line
+x86_64-linux-gnu-ar
+x86_64-linux-gnu-as
+x86_64-linux-gnu-c++filt
+x86_64-linux-gnu-cpp
+x86_64-linux-gnu-cpp-12
+x86_64-linux-gnu-dwp
+x86_64-linux-gnu-elfedit
+x86_64-linux-gnu-gcc
+x86_64-linux-gnu-gcc-12
+x86_64-linux-gnu-gcc-ar
+x86_64-linux-gnu-gcc-ar-12
+x86_64-linux-gnu-gcc-nm
+x86_64-linux-gnu-gcc-nm-12
+x86_64-linux-gnu-gcc-ranlib
+x86_64-linux-gnu-gcc-ranlib-12
+x86_64-linux-gnu-gcov
+x86_64-linux-gnu-gcov-12
+x86_64-linux-gnu-gcov-dump
+x86_64-linux-gnu-gcov-dump-12
+x86_64-linux-gnu-gcov-tool
+x86_64-linux-gnu-gcov-tool-12
+x86_64-linux-gnu-gold
+x86_64-linux-gnu-gp-archive
+x86_64-linux-gnu-gp-collect-app
+x86_64-linux-gnu-gp-display-html
+x86_64-linux-gnu-gp-display-src
+x86_64-linux-gnu-gp-display-text
+x86_64-linux-gnu-gprof
+x86_64-linux-gnu-gprofng
+x86_64-linux-gnu-ld
+x86_64-linux-gnu-ld.bfd
+x86_64-linux-gnu-ld.gold
+x86_64-linux-gnu-lto-dump
+x86_64-linux-gnu-lto-dump-12
+x86_64-linux-gnu-nm
+x86_64-linux-gnu-objcopy
+x86_64-linux-gnu-objdump
+x86_64-linux-gnu-ranlib
+x86_64-linux-gnu-readelf
+x86_64-linux-gnu-size
+x86_64-linux-gnu-strings
+x86_64-linux-gnu-strip
+____________________________________________________________________________________
+14-15: Измените приглашение так, чтобы выводились имя хоста, имя пользователя и
+       время: имя_пользователя@имя_хоста-HH:MM> (Используйте переменные
+       bash и команду date)
+
+  eltex-pg1-v4@eltex-2026-spring:~$ PS1='\u@\h-$(date +%H:%M)> '
+  eltex-pg1-v4@eltex-2026-spring-20:42> export PS1
+  eltex-pg1-v4@eltex-2026-spring-20:43> bash --norc
+  eltex-pg1-v4@eltex-2026-spring-20:44> exit
+  если запустить без конфигов увидим наследование
+____________________________________________________________________________________
+16: Одной командной строкой создайте в домашнем каталоге подкаталоги для
+    каждого месяца текущего года вида YYYY-MM(год реализуйте с помощью
+    команды date и командной подстановки).
+
+  eltex-pg1-v4@eltex-2026-spring-20:52> mkdir ~/$(date)+%Y-{01..12}
+  eltex-pg1-v4@eltex-2026-spring-20:54> ls -ld ~/$(date)+%Y-*
+
+  Результат:
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-01
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-02
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-03
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-04
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-05
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-06
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-07
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-08
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-09
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-10
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-11
+  drwxr-xr-x 2 eltex-pg1-v4 eltex-pg1-v4 4096 Mar 16 20:54 /home/eltex-pg1-v4/2026-12
+____________________________________________________________________________________
+
+                КОНЕЦ           МОДУЛЬ 1 ПРАКТИКА 1 РАЗДЕЛ 2
+
+Script done on 2026-03-16 20:57:32+07:00 [COMMAND_EXIT_CODE="0"]

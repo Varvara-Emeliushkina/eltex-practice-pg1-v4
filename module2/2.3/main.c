@@ -1,10 +1,10 @@
-#include <stdio.h.>
+#include <stdio.h>
 #include <locale.h>
 #include "calculator.h"
 #include "ui.h"
 
- int main() {
+int main() {
     setlocale(LC_ALL, "ru_RU.UTF-8");
-    run_c();
+    run_calculator();
     return 0;
 }

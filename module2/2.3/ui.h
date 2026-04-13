@@ -1,8 +1,8 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UI_H
+#define UI_H
 
-void print_error(int msg);
-void menu();
-void run_c();
+double get_input(const char* prompt);
+void clear_input_buffer();
+void print_error(const char* message);
 
 #endif
